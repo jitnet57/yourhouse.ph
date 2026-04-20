@@ -261,6 +261,17 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Landing Page Editor link */}
+      <a href="/settings/landing"
+        className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5 text-white shadow-xl shadow-indigo-500/20 hover:scale-[1.01] transition-transform cursor-pointer">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">Branding</p>
+          <p className="text-lg font-bold mt-0.5">Landing Page Editor</p>
+          <p className="text-xs text-white/80 mt-1">Customize hero, colors, copy, and CTA with live preview</p>
+        </div>
+        <div className="text-2xl">→</div>
+      </a>
+
       {/* Unsaved changes banner */}
       {dirty && (
         <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-3">
