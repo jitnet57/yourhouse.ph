@@ -841,7 +841,7 @@ export default function Home() {
   }, [colorTheme, theme]);
 
   return (
-    <div className="font-sans" style={{
+    <div suppressHydrationWarning className="font-sans" style={{
       fontFamily: "'Manrope', sans-serif",
       backgroundColor: theme.bg,
       color: theme.text,
