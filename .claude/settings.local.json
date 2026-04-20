@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/yourhouse.ph/apps/web/app/**)",
+      "Read(//e/yourhouse.ph/apps/web/src/**)",
+      "Read(//e/yourhouse.ph/apps/web/**)",
+      "Bash(git -C E:/yourhouse.ph push origin main)",
+      "Bash(git -C E:/yourhouse.ph branch -vv)",
+      "Bash(git -C /e/yourhouse.ph/ status --short)",
+      "Bash(git -C /e/yourhouse.ph/ log --oneline main -5)",
+      "Bash(git -C E:/yourhouse.ph status)",
+      "Bash(git -C E:/yourhouse.ph log --oneline -3)"
+    ]
+  }
+}
