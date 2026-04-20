@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+httpx
+pytest
+pytest-asyncio
+pytest-cov
+python-jose[cryptography]
+bcrypt
+slowapi
