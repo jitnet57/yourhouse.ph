@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useRef, useState } from 'react'
 import * as XLSX from 'xlsx'
 import {
   Plus, Search, Filter, MoreVertical, X, Upload, ImagePlus,
   Home, DollarSign, MapPin, Ruler, BedDouble, Bath,
   CheckCircle2, Tag, FileSpreadsheet, Download, AlertTriangle,
-  ChevronDown, Eye, Trash2
 } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n'
 
 interface Property {
   id: string
@@ -52,12 +52,12 @@ interface ExcelRow {
 }
 
 const PROPERTY_TYPES = ['Condo', 'House & Lot', 'Townhouse', 'Commercial', 'Land', 'Apartment']
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-  { value: 'pending', label: 'Pending', color: 'text-amber-700 bg-amber-50 border-amber-200' },
-  { value: 'sold', label: 'Sold', color: 'text-slate-700 bg-slate-100 border-slate-200' },
-  { value: 'for_rent', label: 'For Rent', color: 'text-indigo-700 bg-indigo-50 border-indigo-200' },
-]
+const STATUS_COLORS: Record<string, string> = {
+  active: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+  pending: 'text-amber-700 bg-amber-50 border-amber-200',
+  sold: 'text-slate-700 bg-slate-100 border-slate-200',
+  for_rent: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+}
 
 const defaultForm: PropertyForm = {
   title: '', address: '', price: '', type: 'Condo', status: 'active',
@@ -68,16 +68,10 @@ const EXCEL_TEMPLATE_HEADERS = [
   'title', 'address', 'price', 'type', 'status', 'bedrooms', 'bathrooms', 'area', 'description'
 ]
 
-function statusBadge(status: string) {
-  const s = STATUS_OPTIONS.find((o) => o.value === status)
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${s?.color ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-      {s?.label ?? status}
-    </span>
-  )
-}
-
 export default function PropertiesPage() {
+  const { t } = useLanguage()
+  const p = t.properties
+
   const [properties, setProperties] = useState<Property[]>([
     { id: '1', title: 'Luxury Condo in BGC', address: 'Fort Bonifacio, Taguig', price: 5500000, status: 'active', aiScore: 98, views: 342, type: 'Condo', bedrooms: 3, bathrooms: 2, area: 120, images: [] },
     { id: '2', title: 'House & Lot in Cavite', address: 'Kawit, Cavite', price: 2800000, status: 'active', aiScore: 92, views: 215, type: 'House & Lot', bedrooms: 4, bathrooms: 3, area: 200, images: [] },
@@ -98,11 +92,20 @@ export default function PropertiesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const excelInputRef = useRef<HTMLInputElement>(null)
 
-  const filtered = properties.filter(
-    (p) => p.title.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase())
+  const statusBadge = (status: string) => (
+    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_COLORS[status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+      {p.status[status as keyof typeof p.status] ?? status}
+    </span>
   )
 
-  // ---- Image helpers ----
+  const STATUS_OPTIONS = Object.entries(STATUS_COLORS).map(([value, color]) => ({
+    value, color, label: p.status[value as keyof typeof p.status] ?? value,
+  }))
+
+  const filtered = properties.filter(
+    (prop) => prop.title.toLowerCase().includes(search.toLowerCase()) || prop.address.toLowerCase().includes(search.toLowerCase())
+  )
+
   const handleImageFiles = (files: FileList | null) => {
     if (!files) return
     const newFiles = Array.from(files).filter((f) => f.type.startsWith('image/'))
@@ -119,7 +122,6 @@ export default function PropertiesPage() {
     }))
   }
 
-  // ---- Submit single property ----
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
@@ -145,7 +147,6 @@ export default function PropertiesPage() {
     setForm(defaultForm); setShowModal(false); setSuccess(false)
   }
 
-  // ---- Excel helpers ----
   const downloadTemplate = () => {
     const sampleData = [
       EXCEL_TEMPLATE_HEADERS,
@@ -231,20 +232,17 @@ export default function PropertiesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Properties</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{properties.length} total listings</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{p.totalListings(properties.length)}</p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
-          <button
-            onClick={() => setShowExcelModal(true)}
-            className="btn-secondary gap-2"
-          >
+          <button onClick={() => setShowExcelModal(true)} className="btn-secondary gap-2">
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            Excel Import
+            {p.excelImport}
           </button>
           <button onClick={() => setShowModal(true)} className="btn-primary">
             <Plus className="w-4 h-4" />
-            Add Property
+            {p.addProperty}
           </button>
         </div>
       </div>
@@ -255,14 +253,14 @@ export default function PropertiesPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search properties..."
+            placeholder={p.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
           />
         </div>
         <button className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 flex items-center gap-2 hover:bg-slate-50 transition">
-          <Filter className="w-4 h-4" /> Filter
+          <Filter className="w-4 h-4" /> {p.filter}
         </button>
       </div>
 
@@ -271,12 +269,12 @@ export default function PropertiesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/70">
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Property</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Details</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">AI Score</th>
-              <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.property}</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.details}</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.price}</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.status}</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.aiScore}</th>
+              <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">{p.table.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -325,7 +323,7 @@ export default function PropertiesPage() {
               <tr>
                 <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
                   <Home className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-medium">No properties found</p>
+                  <p className="text-sm font-medium">{p.noResults}</p>
                 </td>
               </tr>
             )}
@@ -340,8 +338,8 @@ export default function PropertiesPage() {
           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl animate-fade-in-up">
             <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Add New Property</h2>
-                <p className="text-sm text-slate-500 mt-0.5">Fill in the details and upload photos</p>
+                <h2 className="text-xl font-bold text-slate-900">{p.modal.title}</h2>
+                <p className="text-sm text-slate-500 mt-0.5">{p.modal.subtitle}</p>
               </div>
               <button onClick={closeModal} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
                 <X className="w-5 h-5" />
@@ -352,7 +350,7 @@ export default function PropertiesPage() {
               {/* Photo Upload */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
-                  <ImagePlus className="inline w-4 h-4 mr-1.5 -mt-0.5" />Property Photos
+                  <ImagePlus className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.photos}
                 </label>
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
@@ -363,8 +361,8 @@ export default function PropertiesPage() {
                     ${dragOver ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'}`}
                 >
                   <Upload className={`w-8 h-8 mx-auto mb-2 ${dragOver ? 'text-indigo-500' : 'text-slate-400'}`} />
-                  <p className="text-sm font-semibold text-slate-700">Drop photos or <span className="text-indigo-600">browse</span></p>
-                  <p className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP — up to 10 files</p>
+                  <p className="text-sm font-semibold text-slate-700">{p.modal.dropzone}</p>
+                  <p className="text-xs text-slate-400 mt-1">{p.modal.dropzoneHint}</p>
                   <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleImageFiles(e.target.files)} />
                 </div>
                 {form.previews.length > 0 && (
@@ -372,7 +370,7 @@ export default function PropertiesPage() {
                     {form.previews.map((src, i) => (
                       <div key={i} className="relative group rounded-xl overflow-hidden aspect-square border border-slate-200">
                         <img src={src} alt="" className="w-full h-full object-cover" />
-                        {i === 0 && <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">Cover</span>}
+                        {i === 0 && <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">{p.modal.cover}</span>}
                         <button type="button" onClick={() => removeImage(i)} className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500 text-white items-center justify-center hidden group-hover:flex">
                           <X className="w-3 h-3" />
                         </button>
@@ -386,52 +384,52 @@ export default function PropertiesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2"><Home className="inline w-4 h-4 mr-1.5 -mt-0.5" />Title *</label>
-                <input required type="text" placeholder="e.g. 3BR Luxury Condo in BGC" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                <label className="block text-sm font-semibold text-slate-700 mb-2"><Home className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.fieldTitle} *</label>
+                <input required type="text" placeholder={p.modal.titlePlaceholder} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2"><MapPin className="inline w-4 h-4 mr-1.5 -mt-0.5" />Address *</label>
-                <input required type="text" placeholder="Street, City, Province" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
+                <label className="block text-sm font-semibold text-slate-700 mb-2"><MapPin className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.address} *</label>
+                <input required type="text" placeholder={p.modal.addressPlaceholder} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2"><DollarSign className="inline w-4 h-4 mr-1.5 -mt-0.5" />Price (₱) *</label>
-                  <input required type="number" placeholder="e.g. 5500000" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  <label className="block text-sm font-semibold text-slate-700 mb-2"><DollarSign className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.price} *</label>
+                  <input required type="number" placeholder={p.modal.pricePlaceholder} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Tag className="inline w-4 h-4 mr-1.5 -mt-0.5" />Type</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Tag className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.type}</label>
                   <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
-                    {PROPERTY_TYPES.map((t) => <option key={t}>{t}</option>)}
+                    {PROPERTY_TYPES.map((tp) => <option key={tp}>{tp}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2"><BedDouble className="inline w-4 h-4 mr-1.5 -mt-0.5" />Bedrooms</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2"><BedDouble className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.bedrooms}</label>
                   <input type="number" min="0" placeholder="0" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Bath className="inline w-4 h-4 mr-1.5 -mt-0.5" />Bathrooms</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Bath className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.bathrooms}</label>
                   <input type="number" min="0" placeholder="0" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Ruler className="inline w-4 h-4 mr-1.5 -mt-0.5" />Area (sqm)</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2"><Ruler className="inline w-4 h-4 mr-1.5 -mt-0.5" />{p.modal.area}</label>
                   <input type="number" min="0" placeholder="0" value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">Status</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">{p.modal.status}</label>
                 <div className="flex flex-wrap gap-2">
                   {STATUS_OPTIONS.map((s) => (
                     <button key={s.value} type="button" onClick={() => setForm({ ...form, status: s.value })}
@@ -444,17 +442,17 @@ export default function PropertiesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
-                <textarea rows={3} placeholder="Describe amenities, location, features..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                <label className="block text-sm font-semibold text-slate-700 mb-2">{p.modal.description}</label>
+                <textarea rows={3} placeholder={p.modal.descPlaceholder} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition resize-none" />
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="flex-1 btn-secondary">Cancel</button>
+                <button type="button" onClick={closeModal} className="flex-1 btn-secondary">{p.modal.cancel}</button>
                 <button type="submit" disabled={submitting || success} className="flex-1 btn-primary disabled:opacity-70">
-                  {success ? <><CheckCircle2 className="w-4 h-4" />Saved!</>
-                    : submitting ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving...</>
-                    : <><Plus className="w-4 h-4" />Add Property</>}
+                  {success ? <><CheckCircle2 className="w-4 h-4" />{p.modal.saved}</>
+                    : submitting ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{p.modal.saving}</>
+                    : <><Plus className="w-4 h-4" />{p.modal.submit}</>}
                 </button>
               </div>
             </form>
@@ -471,9 +469,9 @@ export default function PropertiesPage() {
               <div>
                 <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                   <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-                  Excel Bulk Import
+                  {p.excel.title}
                 </h2>
-                <p className="text-sm text-slate-500 mt-0.5">Upload .xlsx or .csv to add multiple properties at once</p>
+                <p className="text-sm text-slate-500 mt-0.5">{p.excel.subtitle}</p>
               </div>
               <button onClick={() => { setShowExcelModal(false); setExcelRows([]); setExcelErrors([]) }} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
                 <X className="w-5 h-5" />
@@ -481,22 +479,20 @@ export default function PropertiesPage() {
             </div>
 
             <div className="px-8 py-6 space-y-6">
-              {/* Download template */}
               <div className="flex items-center justify-between rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4">
                 <div>
-                  <p className="text-sm font-semibold text-emerald-800">Download Template</p>
-                  <p className="text-xs text-emerald-600 mt-0.5">Use our template for correct column format</p>
+                  <p className="text-sm font-semibold text-emerald-800">{p.excel.downloadTemplate}</p>
+                  <p className="text-xs text-emerald-600 mt-0.5">{p.excel.downloadHint}</p>
                 </div>
                 <button onClick={downloadTemplate} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors shadow-sm">
                   <Download className="w-4 h-4" />
-                  Download .xlsx
+                  {p.excel.downloadBtn}
                 </button>
               </div>
 
-              {/* Column guide */}
               <div className="rounded-2xl border border-slate-200 overflow-hidden">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">Required Columns</p>
+                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">{p.excel.requiredCols}</p>
                 </div>
                 <div className="grid grid-cols-3 gap-0 divide-x divide-slate-100 text-xs">
                   {[
@@ -519,7 +515,6 @@ export default function PropertiesPage() {
                 </div>
               </div>
 
-              {/* Drop Zone */}
               <div
                 onDragOver={(e) => { e.preventDefault(); setExcelDragOver(true) }}
                 onDragLeave={() => setExcelDragOver(false)}
@@ -529,17 +524,16 @@ export default function PropertiesPage() {
                   ${excelDragOver ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'}`}
               >
                 <FileSpreadsheet className={`w-10 h-10 mx-auto mb-3 ${excelDragOver ? 'text-emerald-500' : 'text-slate-400'}`} />
-                <p className="text-sm font-semibold text-slate-700">Drop your Excel file or <span className="text-emerald-600">browse</span></p>
-                <p className="text-xs text-slate-400 mt-1">Supports .xlsx, .xls, .csv</p>
+                <p className="text-sm font-semibold text-slate-700">{p.excel.dropzone}</p>
+                <p className="text-xs text-slate-400 mt-1">{p.excel.dropzoneHint}</p>
                 <input ref={excelInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={(e) => handleExcelFile(e.target.files)} />
               </div>
 
-              {/* Errors */}
               {excelErrors.length > 0 && (
                 <div className="rounded-2xl bg-red-50 border border-red-200 p-4 space-y-1">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-red-500" />
-                    <p className="text-sm font-semibold text-red-700">Validation Errors</p>
+                    <p className="text-sm font-semibold text-red-700">{p.excel.errors}</p>
                   </div>
                   {excelErrors.map((err, i) => (
                     <p key={i} className="text-xs text-red-600 pl-6">{err}</p>
@@ -547,19 +541,18 @@ export default function PropertiesPage() {
                 </div>
               )}
 
-              {/* Preview Table */}
               {excelRows.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-slate-700">
-                      Preview — <span className="text-emerald-600">{excelRows.length} rows ready to import</span>
+                      <span className="text-emerald-600">{p.excel.previewLabel(excelRows.length)}</span>
                     </p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 overflow-hidden max-h-56 overflow-y-auto">
                     <table className="w-full text-xs">
                       <thead className="bg-slate-50 sticky top-0">
                         <tr>
-                          {['Title', 'Address', 'Price', 'Type', 'Status', 'BR', 'BA', 'sqm'].map((h) => (
+                          {Object.values(p.excel.cols).map((h) => (
                             <th key={h} className="px-4 py-2.5 text-left font-bold text-slate-500 uppercase tracking-wider">{h}</th>
                           ))}
                         </tr>
@@ -583,12 +576,12 @@ export default function PropertiesPage() {
 
                   <div className="flex gap-3 mt-4">
                     <button onClick={() => { setExcelRows([]); setExcelErrors([]) }} className="flex-1 btn-secondary">
-                      Clear
+                      {p.excel.clear}
                     </button>
                     <button onClick={importExcelRows} disabled={excelImporting || excelSuccess} className="flex-1 btn-primary disabled:opacity-70">
-                      {excelSuccess ? <><CheckCircle2 className="w-4 h-4" />{excelRows.length} properties imported!</>
-                        : excelImporting ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Importing...</>
-                        : <><FileSpreadsheet className="w-4 h-4" />Import {excelRows.length} Properties</>}
+                      {excelSuccess ? <><CheckCircle2 className="w-4 h-4" />{p.excel.imported(excelRows.length)}</>
+                        : excelImporting ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{p.excel.importing}</>
+                        : <><FileSpreadsheet className="w-4 h-4" />{p.excel.importBtn(excelRows.length)}</>}
                     </button>
                   </div>
                 </div>

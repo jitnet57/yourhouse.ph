@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import {
-  Save, CheckCircle2, Settings, Globe, Bell, Shield, Plug,
-  Key, Mail, Phone, AlertTriangle, Eye, EyeOff, RefreshCw,
-  Building2, Clock, Languages
+  Save, CheckCircle2, Bell, Shield, Plug,
+  Key, AlertTriangle, Eye, EyeOff, RefreshCw,
+  Building2,
 } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n'
 
 // ─── Types ───────────────────────────────────────────────
 interface GeneralSettings {
@@ -164,6 +165,9 @@ function SecretInput({ value, onChange, placeholder }: { value: string; onChange
 
 // ─── Main Page ───────────────────────────────────────────
 export default function SettingsPage() {
+  const { t } = useLanguage()
+  const s = t.settings
+
   const [general, setGeneral] = useState<GeneralSettings>(DEFAULT_GENERAL)
   const [notif, setNotif] = useState<NotificationSettings>(DEFAULT_NOTIF)
   const [security, setSecurity] = useState<SecuritySettings>(DEFAULT_SECURITY)
@@ -219,7 +223,7 @@ export default function SettingsPage() {
   }
 
   const handleReset = () => {
-    if (!confirm('모든 설정을 초기값으로 되돌릴까요?')) return
+    if (!confirm(s.resetConfirm)) return
     setGeneral(DEFAULT_GENERAL)
     setNotif(DEFAULT_NOTIF)
     setSecurity(DEFAULT_SECURITY)
@@ -232,17 +236,17 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Settings</h1>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{s.title}</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             {savedAt
-              ? <span className="inline-flex items-center gap-1 text-emerald-600"><CheckCircle2 className="w-3.5 h-3.5" />마지막 저장: {savedAt}</span>
-              : '아직 저장되지 않았습니다.'}
+              ? <span className="inline-flex items-center gap-1 text-emerald-600"><CheckCircle2 className="w-3.5 h-3.5" />{s.lastSaved(savedAt)}</span>
+              : s.notSaved}
           </p>
         </div>
 
         <div className="flex items-center gap-3 flex-shrink-0">
           <button onClick={handleReset} className="btn-secondary text-xs px-3 py-2 gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" />초기화
+            <RefreshCw className="w-3.5 h-3.5" />{s.resetBtn}
           </button>
           <button
             onClick={handleSave}
@@ -251,8 +255,8 @@ export default function SettingsPage() {
               ${dirty ? 'animate-pulse-slow' : ''}`}
           >
             {saving
-              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />저장 중...</>
-              : <><Save className="w-4 h-4" />변경사항 저장</>}
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{s.saving}</>
+              : <><Save className="w-4 h-4" />{s.saveBtn}</>}
           </button>
         </div>
       </div>
@@ -261,28 +265,28 @@ export default function SettingsPage() {
       {dirty && (
         <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-3">
           <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-          <p className="text-sm text-amber-800 font-medium">저장하지 않은 변경사항이 있습니다.</p>
+          <p className="text-sm text-amber-800 font-medium">{s.unsavedBanner}</p>
           <button onClick={handleSave} className="ml-auto text-sm font-semibold text-amber-700 hover:text-amber-900 underline underline-offset-2">
-            지금 저장
+            {s.saveNow}
           </button>
         </div>
       )}
 
       {/* ── General ── */}
-      <SectionCard title="일반 설정 (General)" icon={<Building2 className="w-4 h-4" />}>
-        <Field label="플랫폼 이름" hint="브라우저 탭 및 이메일에 표시됩니다">
+      <SectionCard title={s.sections.general} icon={<Building2 className="w-4 h-4" />}>
+        <Field label={s.general.platformName} hint={s.general.platformNameHint}>
           <Input value={general.platformName} onChange={(v) => updateGeneral('platformName', v)} />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="고객지원 이메일" hint="문의 이메일 수신 주소">
+        <Field label={s.general.supportEmail} hint={s.general.supportEmailHint}>
           <Input type="email" value={general.supportEmail} onChange={(v) => updateGeneral('supportEmail', v)} placeholder="support@yourhouse.ph" />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="고객지원 전화번호">
+        <Field label={s.general.supportPhone}>
           <Input type="tel" value={general.supportPhone} onChange={(v) => updateGeneral('supportPhone', v)} placeholder="+63 2 8xxx xxxx" />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="시간대" hint="모든 날짜/시간 표시에 적용">
+        <Field label={s.general.timezone} hint={s.general.timezoneHint}>
           <select value={general.timezone} onChange={(e) => updateGeneral('timezone', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
             <option value="Asia/Manila">Asia/Manila (UTC+8)</option>
@@ -293,7 +297,7 @@ export default function SettingsPage() {
           </select>
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="기본 언어">
+        <Field label={s.general.language}>
           <select value={general.language} onChange={(e) => updateGeneral('language', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
             <option value="en">English</option>
@@ -303,7 +307,7 @@ export default function SettingsPage() {
           </select>
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="통화">
+        <Field label={s.general.currency}>
           <select value={general.currency} onChange={(e) => updateGeneral('currency', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
             <option value="PHP">₱ Philippine Peso (PHP)</option>
@@ -315,76 +319,68 @@ export default function SettingsPage() {
       </SectionCard>
 
       {/* ── Notifications ── */}
-      <SectionCard title="알림 설정 (Notifications)" icon={<Bell className="w-4 h-4" />}>
-        <Toggle checked={notif.emailOnNewLead} onChange={(v) => updateNotif('emailOnNewLead', v)} label="신규 리드 발생 시 이메일 알림" />
+      <SectionCard title={s.sections.notifications} icon={<Bell className="w-4 h-4" />}>
+        <Toggle checked={notif.emailOnNewLead} onChange={(v) => updateNotif('emailOnNewLead', v)} label={s.notif.emailOnNewLead} />
         <div className="border-t border-slate-100" />
-        <Toggle checked={notif.emailOnSale} onChange={(v) => updateNotif('emailOnSale', v)} label="거래 완료 시 이메일 알림" />
+        <Toggle checked={notif.emailOnSale} onChange={(v) => updateNotif('emailOnSale', v)} label={s.notif.emailOnSale} />
         <div className="border-t border-slate-100" />
-        <Toggle checked={notif.smsOnNewLead} onChange={(v) => updateNotif('smsOnNewLead', v)} label="신규 리드 발생 시 SMS 알림 (Twilio 필요)" />
+        <Toggle checked={notif.smsOnNewLead} onChange={(v) => updateNotif('smsOnNewLead', v)} label={s.notif.smsOnNewLead} />
         <div className="border-t border-slate-100" />
-        <Toggle checked={notif.weeklyReport} onChange={(v) => updateNotif('weeklyReport', v)} label="주간 리포트 자동 이메일 발송 (매주 월요일)" />
+        <Toggle checked={notif.weeklyReport} onChange={(v) => updateNotif('weeklyReport', v)} label={s.notif.weeklyReport} />
         <div className="border-t border-slate-100" />
-        <Toggle checked={notif.dailyDigest} onChange={(v) => updateNotif('dailyDigest', v)} label="일일 요약 이메일 발송 (매일 오전 9시)" />
+        <Toggle checked={notif.dailyDigest} onChange={(v) => updateNotif('dailyDigest', v)} label={s.notif.dailyDigest} />
       </SectionCard>
 
       {/* ── Security ── */}
-      <SectionCard title="보안 설정 (Security)" icon={<Shield className="w-4 h-4" />}>
-        <Field label="세션 만료" hint="비활성 후 자동 로그아웃 시간 (분)">
+      <SectionCard title={s.sections.security} icon={<Shield className="w-4 h-4" />}>
+        <Field label={s.security.sessionTimeout} hint={s.security.sessionTimeoutHint}>
           <select value={security.sessionTimeout} onChange={(e) => updateSecurity('sessionTimeout', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
-            <option value="15">15분</option>
-            <option value="30">30분</option>
-            <option value="60">1시간</option>
-            <option value="480">8시간</option>
-            <option value="0">만료 안 함</option>
+            {(Object.entries(s.timeouts) as [string, string][]).map(([v, label]) => <option key={v} value={v}>{label}</option>)}
           </select>
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="로그인 시도 제한" hint="초과 시 계정 잠금">
+        <Field label={s.security.loginAttempts} hint={s.security.loginAttemptsHint}>
           <select value={security.loginAttempts} onChange={(e) => updateSecurity('loginAttempts', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
-            <option value="3">3회</option>
-            <option value="5">5회</option>
-            <option value="10">10회</option>
+            {(Object.entries(s.attempts) as [string, string][]).map(([v, label]) => <option key={v} value={v}>{label}</option>)}
           </select>
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="최소 비밀번호 길이">
+        <Field label={s.security.passwordLength}>
           <select value={security.passwordMinLength} onChange={(e) => updateSecurity('passwordMinLength', e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition">
-            <option value="6">6자 이상</option>
-            <option value="8">8자 이상</option>
-            <option value="12">12자 이상</option>
+            {(Object.entries(s.lengths) as [string, string][]).map(([v, label]) => <option key={v} value={v}>{label}</option>)}
           </select>
         </Field>
         <div className="border-t border-slate-100" />
-        <Toggle checked={security.twoFactorEnabled} onChange={(v) => updateSecurity('twoFactorEnabled', v)} label="2단계 인증 (2FA) 활성화" />
+        <Toggle checked={security.twoFactorEnabled} onChange={(v) => updateSecurity('twoFactorEnabled', v)} label={s.security.twoFactor} />
       </SectionCard>
 
       {/* ── Integrations ── */}
-      <SectionCard title="외부 서비스 연동 (Integrations)" icon={<Plug className="w-4 h-4" />}>
+      <SectionCard title={s.sections.integrations} icon={<Plug className="w-4 h-4" />}>
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-700 flex items-start gap-2 mb-2">
           <Key className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-          API 키는 암호화되어 브라우저 로컬스토리지에 저장됩니다. 운영 환경에서는 서버 환경변수(.env)를 사용하세요.
+          {s.integration.apiKeyNote}
         </div>
 
-        <Field label="Twilio Account SID" hint="SMS 발송에 사용">
+        <Field label={s.integration.twilioSid} hint={s.integration.twilioSidHint}>
           <SecretInput value={integration.twilioSid} onChange={(v) => updateIntegration('twilioSid', v)} placeholder="ACxxxxxxxxxxxxxxxx" />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="Twilio Auth Token">
+        <Field label={s.integration.twilioToken}>
           <SecretInput value={integration.twilioToken} onChange={(v) => updateIntegration('twilioToken', v)} placeholder="Auth Token" />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="ElevenLabs API Key" hint="AI 음성 합성">
+        <Field label={s.integration.elevenlabs} hint={s.integration.elevenlabsHint}>
           <SecretInput value={integration.elevenlabsKey} onChange={(v) => updateIntegration('elevenlabsKey', v)} placeholder="API Key" />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="Google Maps API Key" hint="매물 지도 표시">
+        <Field label={s.integration.googleMaps} hint={s.integration.googleMapsHint}>
           <SecretInput value={integration.googleMapsKey} onChange={(v) => updateIntegration('googleMapsKey', v)} placeholder="AIza..." />
         </Field>
         <div className="border-t border-slate-100" />
-        <Field label="CRM Webhook URL" hint="리드 생성 시 외부 CRM으로 전송">
+        <Field label={s.integration.crmWebhook} hint={s.integration.crmWebhookHint}>
           <Input value={integration.crmWebhook} onChange={(v) => updateIntegration('crmWebhook', v)} placeholder="https://your-crm.com/webhook" />
         </Field>
       </SectionCard>
@@ -392,12 +388,12 @@ export default function SettingsPage() {
       {/* Bottom Save */}
       <div className="flex justify-end gap-3 pb-8">
         <button onClick={handleReset} className="btn-secondary gap-2">
-          <RefreshCw className="w-4 h-4" />초기화
+          <RefreshCw className="w-4 h-4" />{s.resetBtn}
         </button>
         <button onClick={handleSave} disabled={saving || !dirty} className="btn-primary gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
           {saving
-            ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />저장 중...</>
-            : <><Save className="w-4 h-4" />변경사항 저장</>}
+            ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{s.saving}</>
+            : <><Save className="w-4 h-4" />{s.saveBtn}</>}
         </button>
       </div>
     </div>
