@@ -1,0 +1,2 @@
+name = "yourhouse-ph"
+pages_build_output_dir = "apps/web/cloudflare-pages-dist"

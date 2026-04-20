@@ -1,0 +1,77 @@
+INFO:     Started server process [27356]
+INFO:     Waiting for application startup.
+INFO:     ASGI 'lifespan' protocol appears unsupported.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 420, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\applications.py", line 89, in __call__
+    self.middleware_stack = self.build_middleware_stack()
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1065, in build_middleware_stack
+    app = cls(app, *args, **kwargs)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\middleware\trustedhost.py", line 23, in __init__
+    assert "*" not in pattern[1:], ENFORCE_DOMAIN_WILDCARD
+                      ~~~~~~~^^^^
+TypeError: 'NoneType' object is not subscriptable
+INFO:     127.0.0.1:64554 - "GET / HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 420, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\applications.py", line 89, in __call__
+    self.middleware_stack = self.build_middleware_stack()
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1065, in build_middleware_stack
+    app = cls(app, *args, **kwargs)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\middleware\trustedhost.py", line 23, in __init__
+    assert "*" not in pattern[1:], ENFORCE_DOMAIN_WILDCARD
+                      ~~~~~~~^^^^
+TypeError: 'NoneType' object is not subscriptable
+INFO:     127.0.0.1:64555 - "GET /health HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 420, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\applications.py", line 89, in __call__
+    self.middleware_stack = self.build_middleware_stack()
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\fastapi\applications.py", line 1065, in build_middleware_stack
+    app = cls(app, *args, **kwargs)
+  File "e:\yourhouse.ph\.venv\Lib\site-packages\starlette\middleware\trustedhost.py", line 23, in __init__
+    assert "*" not in pattern[1:], ENFORCE_DOMAIN_WILDCARD
+                      ~~~~~~~^^^^
+TypeError: 'NoneType' object is not subscriptable
+INFO:     127.0.0.1:64556 - "GET /api/health HTTP/1.1" 500 Internal Server Error
