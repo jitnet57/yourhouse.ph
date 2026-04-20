@@ -557,7 +557,7 @@ export default function Home() {
     setCurrentUser({ email: 'newuser@yourhouse.ph', name: 'New User' });
     setShowAuthModal(false);
   };
-  const t = translations[language];
+
   const theme = colorThemes[colorTheme];
 
   const navItems = [
