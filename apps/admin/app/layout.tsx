@@ -9,6 +9,7 @@ import {
   Bell, Search, Sparkles, LogOut
 } from 'lucide-react'
 import { LanguageProvider, useLanguage, Lang } from '@/lib/i18n'
+import { useLangSync } from '@/lib/useLangSync'
 
 const MENU_ICONS = {
   dashboard: LayoutDashboard,
@@ -32,7 +33,8 @@ const MENU_HREFS: Record<string, string> = {
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { lang, setLang, t } = useLanguage()
+  const { t } = useLanguage()           // translations from context
+  const { lang, changeLang } = useLangSync()  // lang + DB sync
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
 
   const menuKeys = Object.keys(MENU_HREFS) as (keyof typeof MENU_HREFS)[]
@@ -140,7 +142,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               {/* Language selector */}
               <select
                 value={lang}
-                onChange={(e) => setLang(e.target.value as Lang)}
+                onChange={(e) => changeLang(e.target.value as Lang)}
                 className="appearance-none rounded-xl bg-slate-100 hover:bg-slate-200 border border-transparent px-3 py-2 pr-8 text-xs font-semibold text-slate-700 cursor-pointer transition-colors bg-no-repeat"
                 style={{
                   backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
