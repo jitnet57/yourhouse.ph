@@ -857,11 +857,11 @@ export default function Home() {
               className="w-10 h-10 rounded-full bg-[#60c6d4]/10 text-[#60c6d4] border border-white/10 flex items-center justify-center transition hover:bg-[#60c6d4]/15">
               {menuOpen ? <X size={18} /> : <span className="text-lg">≡</span>}
             </button>
-            <span className="text-sm text-slate-300">Menu</span>
+            <span className="text-sm" style={{ color: colorTheme === 'day' ? '#0A2540' : '#cbd5e1' }}>Menu</span>
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide text-slate-100">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide" style={{ color: colorTheme === 'day' ? '#0A2540' : '#e2e8f0' }}>
           {navItems.map((item) => (
             <button
               key={item.key}
@@ -874,7 +874,9 @@ export default function Home() {
               aria-current={activeNavItem === item.key ? 'page' : undefined}
               className={`transition px-1 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60c6d4] focus-visible:rounded ${activeNavItem === item.key
                 ? 'text-[#f2ca50] border-b-2 border-[#f2ca50]'
-                : 'text-slate-200 hover:text-white hover:border-b-2 hover:border-[#f2ca50]/40'
+                : colorTheme === 'day'
+                  ? 'text-[#0A2540] hover:text-[#0088AA] hover:border-b-2 hover:border-[#0088AA]/60'
+                  : 'text-slate-200 hover:text-white hover:border-b-2 hover:border-[#f2ca50]/40'
                 }`}>
               {item.label}
             </button>
@@ -925,7 +927,9 @@ export default function Home() {
                 }}
                 className={`block text-left w-full text-base font-medium transition py-2 rounded-2xl ${activeNavItem === item.key
                   ? 'text-[#f2ca50] bg-white/5'
-                  : 'text-white hover:text-[#60c6d4] hover:bg-white/5'
+                  : colorTheme === 'day'
+                    ? 'text-[#0A2540] hover:text-[#0088AA] hover:bg-black/5'
+                    : 'text-white hover:text-[#60c6d4] hover:bg-white/5'
                   }`}>
                 {item.label}
               </button>
@@ -1264,7 +1268,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-16">
             <div>
-              <span className="font-label text-[#60c6d4] tracking-[0.2em] uppercase text-xs mb-2 block">{t.featuredPortfolio.label}</span>
+              <span className="font-label tracking-[0.2em] uppercase text-xs mb-2 block" style={{ color: colorTheme === 'day' ? '#006080' : '#60c6d4' }}>{t.featuredPortfolio.label}</span>
               <h2 className="font-serif text-5xl italic">{t.featuredPortfolio.title}</h2>
             </div>
             <div className="flex gap-4">
@@ -1286,20 +1290,24 @@ export default function Home() {
             </div>
 
             {/* Agent Card (Glassmorphism) */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-10 flex flex-col justify-between relative overflow-hidden group hover:bg-white/20 transition-all duration-300">
+            <div className="backdrop-blur-xl border p-10 flex flex-col justify-between relative overflow-hidden group transition-all duration-300"
+              style={{
+                backgroundColor: colorTheme === 'day' ? 'rgba(0,100,130,0.12)' : 'rgba(255,255,255,0.10)',
+                borderColor: colorTheme === 'day' ? 'rgba(0,136,170,0.35)' : 'rgba(255,255,255,0.20)',
+              }}>
               <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#0d6b74]/20 rounded-full blur-3xl group-hover:bg-[#0d6b74]/40 transition"></div>
               <div>
-                <h3 className="font-serif text-3xl mb-6 italic text-white">{t.card.premiumAgent}</h3>
+                <h3 className="font-serif text-3xl mb-6 italic" style={{ color: colorTheme === 'day' ? '#051827' : '#FFFFFF' }}>{t.card.premiumAgent}</h3>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-16 h-16 bg-[#0d6b74]/20 rounded-full flex items-center justify-center">
                     <Volume2 size={24} className="text-[#60c6d4]" />
                   </div>
                   <div>
-                    <p className="font-body font-bold text-lg text-white">{t.card.analysis}</p>
-                    <p className="font-label text-xs text-[#60c6d4] uppercase tracking-widest">{t.card.support}</p>
+                    <p className="font-body font-bold text-lg" style={{ color: colorTheme === 'day' ? '#051827' : '#FFFFFF' }}>{t.card.analysis}</p>
+                    <p className="font-label text-xs uppercase tracking-widest" style={{ color: colorTheme === 'day' ? '#006080' : '#60c6d4' }}>{t.card.support}</p>
                   </div>
                 </div>
-                <p className="text-sm text-slate-200 leading-relaxed mb-8">
+                <p className="text-sm leading-relaxed mb-8" style={{ color: colorTheme === 'day' ? '#1a3a4a' : '#e2e8f0' }}>
                   {t.card.description}
                 </p>
               </div>
@@ -1307,7 +1315,8 @@ export default function Home() {
                 <button className="bg-gradient-to-r from-[#60c6d4] to-[#0d6b74] text-white py-4 font-label uppercase tracking-widest text-xs font-bold hover:shadow-lg hover:shadow-[#60c6d4]/40 transition">
                   {t.card.schedule}
                 </button>
-                <button className="border border-[#60c6d4]/50 py-4 font-label uppercase tracking-widest text-xs text-white hover:bg-[#60c6d4]/10 transition-colors">
+                <button className="py-4 font-label uppercase tracking-widest text-xs hover:opacity-80 transition-colors"
+                  style={{ border: `1px solid ${colorTheme === 'day' ? '#0088AA' : 'rgba(96,198,212,0.5)'}`, color: colorTheme === 'day' ? '#006080' : '#FFFFFF' }}>
                   {t.card.report}
                 </button>
               </div>
@@ -1331,8 +1340,38 @@ export default function Home() {
             <div className="space-y-4">
               {[
                 {
-                  icon: '📍', title: 'Schedule Property Tour', desc: 'Book a personalized tour with our agents',
+                  icon: '🏠', title: 'Book a Viewing', desc: 'Schedule a personalized property tour',
                   action: () => setTourBookingOpen(true),
+                },
+                {
+                  icon: '📋', title: 'Get a Quote', desc: 'Free property valuation & price estimate',
+                  action: () => {
+                    setGalleryIndex(0);
+                    setDetailModal({ type: 'property', data: { name: 'Skyrise 4 Tower', location: 'Cebu IT Park', price: '₱7.2M', roi: '8.5%', type: '2BR', sqm: '55', image: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80', status: 'For Sale', photos: [] } });
+                    setAiAnalysisOpen(true);
+                  },
+                },
+                {
+                  icon: '📞', title: 'Talk to Agent', desc: 'Connect with a specialist right now',
+                  action: () => setVoiceOpen(true),
+                },
+                {
+                  icon: '🔑', title: 'Apply to Rent', desc: 'Start your rental application today',
+                  action: () => {
+                    setActiveNavItem('rent');
+                    setTimeout(() => document.getElementById('nav-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                  },
+                },
+                {
+                  icon: '📝', title: 'List a Property', desc: 'Post your property for sale or rent',
+                  action: () => setVoiceOpen(true),
+                },
+                {
+                  icon: '🗺️', title: 'Explore Area', desc: 'Nearby schools, amenities & transport',
+                  action: () => {
+                    setActiveNavItem('buy');
+                    setTimeout(() => document.getElementById('nav-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                  },
                 },
                 {
                   icon: '📊', title: 'Get Investment Analysis', desc: 'Receive detailed ROI and property evaluation',
@@ -1352,10 +1391,6 @@ export default function Home() {
                     setActiveNavItem('marketNews');
                     setTimeout(() => document.getElementById('nav-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                   },
-                },
-                {
-                  icon: '👤', title: 'Consult with Premium Agent', desc: 'Get expert guidance from our specialists',
-                  action: () => setVoiceOpen(true),
                 },
               ].map((service, idx) => (
                 <button
@@ -1407,21 +1442,18 @@ export default function Home() {
             </div>
 
             <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col gap-4 border-l border-[#60c6d4]/30 pl-8 py-4 hover:border-[#60c6d4]/80 transition">
-                <span className="text-[#60c6d4] font-label text-xs tracking-widest uppercase">{t.features.verification}</span>
-                <h4 className="font-serif text-2xl italic text-white">{t.features.accuracy}</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">{t.features.verificationDesc}</p>
-              </div>
-              <div className="flex flex-col gap-4 border-l border-[#60c6d4]/30 pl-8 py-4 hover:border-[#60c6d4]/80 transition">
-                <span className="text-[#60c6d4] font-label text-xs tracking-widest uppercase">{t.features.analytics}</span>
-                <h4 className="font-serif text-2xl italic text-white">{t.features.roiData}</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">{t.features.analyticsDesc}</p>
-              </div>
-              <div className="flex flex-col gap-4 border-l border-[#60c6d4]/30 pl-8 py-4 hover:border-[#60c6d4]/80 transition">
-                <span className="text-[#60c6d4] font-label text-xs tracking-widest uppercase">{t.features.support}</span>
-                <h4 className="font-serif text-2xl italic text-white">{t.features.consultation}</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">{t.features.supportDesc}</p>
-              </div>
+              {[
+                { label: t.features.verification, title: t.features.accuracy, desc: t.features.verificationDesc },
+                { label: t.features.analytics, title: t.features.roiData, desc: t.features.analyticsDesc },
+                { label: t.features.support, title: t.features.consultation, desc: t.features.supportDesc },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col gap-4 pl-8 py-4 transition hover:opacity-90"
+                  style={{ borderLeft: `1px solid ${colorTheme === 'day' ? 'rgba(0,136,170,0.5)' : 'rgba(96,198,212,0.3)'}` }}>
+                  <span className="font-label text-xs tracking-widest uppercase" style={{ color: colorTheme === 'day' ? '#006080' : '#60c6d4' }}>{item.label}</span>
+                  <h4 className="font-serif text-2xl italic" style={{ color: colorTheme === 'day' ? '#051827' : '#FFFFFF' }}>{item.title}</h4>
+                  <p className="text-sm leading-relaxed" style={{ color: colorTheme === 'day' ? '#1a3a4a' : '#cbd5e1' }}>{item.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1455,8 +1487,8 @@ export default function Home() {
           <div className="rounded-3xl w-full max-w-2xl bg-[#0A2540] border border-[#60c6d4]/30 shadow-2xl my-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/10">
               <div>
-                <h2 className="text-xl font-bold text-white">{t.tourBooking.title}</h2>
-                <p className="text-sm text-slate-400 mt-0.5">{t.tourBooking.subtitle}</p>
+                <h2 className="text-xl font-bold text-white">{t.navContent.tourBooking.title}</h2>
+                <p className="text-sm text-slate-400 mt-0.5">{t.navContent.tourBooking.subtitle}</p>
               </div>
               <div className="flex items-center gap-2">
                 <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} className="px-2 py-1 rounded-lg bg-white/10 border border-white/20 text-white text-xs focus:outline-none focus:border-[#60c6d4]">
@@ -1470,34 +1502,34 @@ export default function Home() {
             </div>
             {/* Booking form */}
             <div className="p-6 space-y-4">
-              <p className="text-slate-300 text-sm">{t.tourBooking.description}</p>
+              <p className="text-slate-300 text-sm">{t.navContent.tourBooking.description}</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">{t.tourBooking.fullName}</label>
-                  <input type="text" placeholder={t.tourBooking.fullNamePlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
+                  <label className="block text-xs text-slate-400 mb-1">{t.navContent.tourBooking.fullName}</label>
+                  <input type="text" placeholder={t.navContent.tourBooking.fullNamePlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">{t.tourBooking.phone}</label>
-                  <input type="tel" placeholder={t.tourBooking.phonePlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
+                  <label className="block text-xs text-slate-400 mb-1">{t.navContent.tourBooking.phone}</label>
+                  <input type="tel" placeholder={t.navContent.tourBooking.phonePlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t.tourBooking.email}</label>
-                <input type="email" placeholder={t.tourBooking.emailPlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
+                <label className="block text-xs text-slate-400 mb-1">{t.navContent.tourBooking.email}</label>
+                <input type="email" placeholder={t.navContent.tourBooking.emailPlaceholder} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4]" />
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t.tourBooking.dateTime}</label>
+                <label className="block text-xs text-slate-400 mb-1">{t.navContent.tourBooking.dateTime}</label>
                 <input type="datetime-local" className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-[#60c6d4]" style={{colorScheme: 'dark'}} />
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t.tourBooking.message}</label>
-                <textarea placeholder={t.tourBooking.messagePlaceholder} rows={3} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4] resize-none" />
+                <label className="block text-xs text-slate-400 mb-1">{t.navContent.tourBooking.message}</label>
+                <textarea placeholder={t.navContent.tourBooking.messagePlaceholder} rows={3} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#60c6d4] resize-none" />
               </div>
               <button className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#60c6d4] to-[#0088AA] hover:opacity-90 transition text-sm">
-                {t.tourBooking.submit}
+                {t.navContent.tourBooking.submit}
               </button>
               <p className="text-center text-xs text-slate-500">
-                {t.tourBooking.bookDirect}{' '}
+                {t.navContent.tourBooking.bookDirect}{' '}
                 <a href="https://cal.com/yourhouse-ph" target="_blank" rel="noopener noreferrer" className="text-[#60c6d4] hover:underline">
                   cal.com/yourhouse-ph →
                 </a>
