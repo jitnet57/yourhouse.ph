@@ -3,3 +3,14 @@ uvicorn[standard]
 python-dotenv
 pydantic
 httpx
+pytest
+pytest-asyncio
+pytest-cov
+python-jose[cryptography]
+bcrypt
+slowapi
+# LangGraph + AI
+langgraph>=0.2.0
+anthropic>=0.30.0
+# Redis cache
+redis[asyncio]>=5.0.0

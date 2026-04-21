@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/yourhouse.ph/apps/web/app/**)",
+      "Read(//e/yourhouse.ph/apps/web/src/**)",
+      "Read(//e/yourhouse.ph/apps/web/**)",
+      "Bash(git -C E:/yourhouse.ph push origin main)",
+      "Bash(git -C E:/yourhouse.ph branch -vv)",
+      "Bash(git -C /e/yourhouse.ph/ status --short)",
+      "Bash(git -C /e/yourhouse.ph/ log --oneline main -5)",
+      "Bash(git -C E:/yourhouse.ph status)",
+      "Bash(git -C E:/yourhouse.ph log --oneline -3)",
+      "Bash(npm run *)",
+      "Bash(docker build *)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest tests/test_auth.py -v --tb=short)",
+      "Bash(python -m pytest tests/test_auth.py::TestAuth::test_health_check -v)",
+      "Bash(python -m pytest tests/test_auth.py -v --tb=line)",
+      "Bash(xargs -I {} bash -c 'echo \"=== {} ===\" && grep -E \"\\\\\"scripts|\\\\\"dev|\\\\\"build\" {} | head -10')",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

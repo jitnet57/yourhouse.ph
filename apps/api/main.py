@@ -187,7 +187,13 @@ try:
     app.include_router(reports_router, prefix="/api", tags=["Reports"])
     app.include_router(integrations_router, prefix="/api", tags=["Integrations"])
     app.include_router(orchestration_router, tags=["Orchestration"])
-    
+
+    from app.routes.lang_sync import router as lang_sync_router
+    app.include_router(lang_sync_router, prefix="/api", tags=["Language Sync"])
+
+    from app.routes.landing import router as landing_router
+    app.include_router(landing_router, prefix="/api", tags=["Landing Editor"])
+
     logger.info("✅ All API routers loaded successfully")
 except ImportError as e:
     logger.warning(f"⚠️  Some routers could not be loaded: {str(e)}")
